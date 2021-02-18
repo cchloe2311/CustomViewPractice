@@ -53,8 +53,10 @@ class GraphView (
         yMin = newDataSet.minBy { it.yVal }?.yVal ?: 0
         yMax = newDataSet.maxBy { it.yVal }?.yVal ?: 0
 
-        dataSet.clear()
-        dataSet.addAll(newDataSet)
+        dataSet.apply {
+            clear()
+            addAll(newDataSet)
+        }
 
         invalidate() // 단순히 뷰를 다시 그릴 때 사용 ex. text, color 변경 시 -> onDraw()를 호출 함
     }
@@ -68,8 +70,10 @@ class GraphView (
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        realDataSet.clear()
-        realDataSet.addAll(toRealDataSet(dataSet))
+        realDataSet.apply {
+            clear()
+            addAll(toRealDataSet(dataSet))
+        }
 
         realDataSet.forEachIndexed { index, currentDataPoint ->
             val realX = currentDataPoint.xVal
@@ -87,12 +91,16 @@ class GraphView (
                 canvas?.drawLine(startX, startY, endX, endY, dataPointLinePaint)
             }
 
-            canvas?.drawCircle(realX, realY, 7f, dataPointFillPaint)
-            canvas?.drawCircle(realX, realY, 7f, dataPointPaint)
+            canvas?.apply {
+                drawCircle(realX, realY, 7f, dataPointFillPaint)
+                drawCircle(realX, realY, 7f, dataPointPaint)
+            }
         }
 
-        canvas?.drawLine(0f, 0f, 0f, height.toFloat(), axisLinePaint)
-        canvas?.drawLine(0f, height.toFloat(), width.toFloat(), height.toFloat(), axisLinePaint)
+        canvas?.apply {
+            drawLine(0f, 0f, 0f, height.toFloat(), axisLinePaint)
+            drawLine(0f, height.toFloat(), width.toFloat(), height.toFloat(), axisLinePaint)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
