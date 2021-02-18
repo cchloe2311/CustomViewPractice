@@ -9,12 +9,13 @@ import android.view.MotionEvent
 import android.view.View
 
 class GraphView (
-    context: Context,
-    attributeSet: AttributeSet,
-    val onPointClickListener: OnPointClickListener
+        context: Context,
+        attributeSet: AttributeSet
 ) : View(context, attributeSet), View.OnClickListener { // view 클래스를 상속받음으로써 onDraw()를 재정의할 수 있음
 
-    private val dataSet = mutableListOf<DataPoint<Float>>()
+    lateinit var onPointClickListener: OnPointClickListener
+    private val dataSet = mutableListOf<DataPoint<Int>>()
+    private val realDataSet = mutableListOf<DataPoint<Float>>()
     private var xMin = 0
     private var xMax = 0
     private var yMin = 0
@@ -43,6 +44,9 @@ class GraphView (
         strokeWidth = 10f
     } // y, x 좌표를 그릴 객체
 
+    fun setPointClickListener(onPointClickListener: OnPointClickListener) {
+        this.onPointClickListener = onPointClickListener
+    }
     fun setData(newDataSet: List<DataPoint<Int>>) {
         xMin = newDataSet.minBy { it.xVal }?.xVal ?: 0
         xMax = newDataSet.maxBy { it.xVal }?.xVal ?: 0
@@ -50,7 +54,7 @@ class GraphView (
         yMax = newDataSet.maxBy { it.yVal }?.yVal ?: 0
 
         dataSet.clear()
-        dataSet.addAll(toRealDataSet(newDataSet))
+        dataSet.addAll(newDataSet)
 
         invalidate() // 단순히 뷰를 다시 그릴 때 사용 ex. text, color 변경 시 -> onDraw()를 호출 함
     }
@@ -58,16 +62,21 @@ class GraphView (
     private fun toRealDataSet(newDataSet: List<DataPoint<Int>>): List<DataPoint<Float>>
         = newDataSet.map { DataPoint(it.xVal.toRealX(), it.yVal.toRealY()) }
 
+    private fun Int.toRealX() = toFloat() / xMax * width
+    private fun Int.toRealY() = toFloat() / yMax * height
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        dataSet.forEachIndexed { index, currentDataPoint ->
+        realDataSet.clear()
+        realDataSet.addAll(toRealDataSet(dataSet))
+
+        realDataSet.forEachIndexed { index, currentDataPoint ->
             val realX = currentDataPoint.xVal
             val realY = currentDataPoint.yVal
 
             if (index < (dataSet.size - 1)) {
-                val nextDataPoint = dataSet[index + 1]
+                val nextDataPoint = realDataSet[index + 1]
 
                 val startX = currentDataPoint.xVal
                 val endX = nextDataPoint.xVal
@@ -86,9 +95,6 @@ class GraphView (
         canvas?.drawLine(0f, height.toFloat(), width.toFloat(), height.toFloat(), axisLinePaint)
     }
 
-    private fun Int.toRealX() = toFloat() / xMax * width
-    private fun Int.toRealY() = toFloat() / yMax * height
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         super.onTouchEvent(event)
 
@@ -101,8 +107,8 @@ class GraphView (
     }
 
     private fun getClickedPointIndex(y: Float, x: Float): Int {
-        dataSet.forEachIndexed { index, dataPoint ->
-            if ((y >= (dataPoint.yVal - 10f)) && (y <= (dataPoint.yVal + 10f)) && (x >= (dataPoint.xVal - 10f)) && (x <= (dataPoint.xVal + 10f))) return index
+        realDataSet.forEachIndexed { index, dataPoint ->
+            if ((y >= (dataPoint.yVal - 30f)) && (y <= (dataPoint.yVal + 30f)) && (x >= (dataPoint.xVal - 30f)) && (x <= (dataPoint.xVal + 30f))) return index
         }
 
         return NO_MATCH_POINT
