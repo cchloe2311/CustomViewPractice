@@ -20,6 +20,8 @@ class GraphView (
     private var yMin = 0
     private var yMax = 0 // 그래프의 범위를 설정
 
+    private val NO_MATCH_POINT = -1
+
     private val dataPointPaint = Paint().apply {
         color = Color.BLUE
         strokeWidth = 7f // 도형의 두께 설정
@@ -88,16 +90,22 @@ class GraphView (
     private fun Int.toRealY() = toFloat() / yMax * height
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return super.onTouchEvent(event)
+        super.onTouchEvent(event)
 
         if (event?.action == MotionEvent.ACTION_DOWN) {
-            // getClickedPointIndex(event.y)
-            onPointClickListener.onPointClick(1)
+            val clickedPointIndex = getClickedPointIndex(event.y, event.x)
+            if (clickedPointIndex != NO_MATCH_POINT) onPointClickListener.onPointClick(clickedPointIndex)
         }
+
+        return true // 그 뒤 리스너까지 이벤트를 전달하지 않고, 터치만 하고 끝
     }
 
     private fun getClickedPointIndex(y: Float, x: Float): Int {
-        return 1
+        dataSet.forEachIndexed { index, dataPoint ->
+            if ((y >= (dataPoint.yVal - 10f)) && (y <= (dataPoint.yVal + 10f)) && (x >= (dataPoint.xVal - 10f)) && (x <= (dataPoint.xVal + 10f))) return index
+        }
+
+        return NO_MATCH_POINT
     }
 
     override fun onClick(p0: View?) {
