@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         graph_view.setData(generateRandomDataPoints())
     }
 
-    private fun generateRandomDataPoints(): List<DataPoint> {
+    private fun generateRandomDataPoints(): List<DataPoint<Int>> {
         val random = Random()
 
         return (0..20).map {
