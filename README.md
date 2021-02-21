@@ -4,6 +4,7 @@ CustomViewPractice 레포지토리!
 - customized view가 필요할 때(애니메이션 등이 필요한 뷰)
 - 뷰의 그룹이 앱 내의 다른 부분에서 사용될 때 -> 같은 코드를 중복 작성
 ![](https://images.velog.io/images/cchloe2311/post/7d51ba44-774e-4325-8e35-d0bcd03e2250/image.png)
+
 - 한 개의 뷰코드가 여러 depth로 이루어질 때
 ![](https://images.velog.io/images/cchloe2311/post/8d11f846-c476-4762-8b1f-107f5c1d1a03/image.png)
     - 맵과 맵 포인트를 설정하는 코드
